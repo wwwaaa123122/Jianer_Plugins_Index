@@ -18,19 +18,78 @@
 > 
 > **对于造成插件市场损坏的账户，我们将联系其并在一段时间内撤销其推送权限。**
 
-1.	拉取本仓库
-2.	在仓库根目录下，创建一个文件夹，**文件夹与你的插件名称保持一致**
-3.	复制你的插件到这个文件夹中，无论是单个文件的插件或是文件夹形式的插件。
-4.	提交 Pull Request ，将更好后的仓库内容**推送至 Github** ，即上传完成。
+1.  **Fork 本仓库**
+    *   访问 [https://github.com/IntelliMarkets/Jianer_Plugins_Index](https://github.com/IntelliMarkets/Jianer_Plugins_Index)。
+    *   点击右上角的 "Fork" 按钮，将仓库复制到你的 GitHub 账号下。
 
-举例： 假设你的插件名称为 Your_Plugin ，在完成插件复制后，检查目录格式。以下三种目录情况均为满足规范：
+2.  **克隆 (Clone) 你 Fork 的仓库到本地**
+    *   在你的 GitHub 账号下找到你 Fork 的 Jianer_Plugins_Index 仓库。
+    *   点击 "Code" 按钮，复制仓库的 URL (以 `git@github.com` 或 `https://github.com` 开头)。
+    *   打开你的终端 (Terminal) 或 Git Bash，执行以下命令：
 
-*	Your_Plugin\Your_Plugin.py
+        ```bash
+        git clone <你复制的仓库 URL>
+        cd Jianer_Plugins_Index
+        ```
 
-*	Your_Plugin\Your_Plugin.pyw
+3.  **创建插件目录**
+    *   在本地仓库的根目录下，创建一个文件夹，**文件夹名称必须与你的插件名称保持一致**。 例如，如果你的插件名为 "YourIntelliPlugin"，则文件夹名称也必须是 "YourIntelliPlugin"。
 
-*	Your_Plugin\Your_Plugin\setup.py
+        ```bash
+        mkdir YourIntelliPlugin
+        ```
 
+4.  **复制你的插件文件到插件目录**
+    *   将你的插件文件 (例如 `YourIntelliPlugin.py`，或者包含 `setup.py` 的插件文件夹) 复制到你创建的插件目录中。
+
+5.  **提交 (Commit) 你的更改**
+    *   在终端中，使用以下 Git 命令来暂存、提交你的更改：
+
+        ```bash
+        git add . 
+        git commit -m "添加插件：YourIntelliPlugin" 
+        ```
+
+7.  **推送 (Push) 到你的 Fork 仓库**
+    *   使用以下 Git 命令将本地更改推送到你 Fork 的 GitHub 仓库：
+
+        ```bash
+        git push origin main  # 推送到 origin 仓库的 main 分支 (如果你的仓库使用其他分支，请替换 main)
+        ```
+
+8.  **创建 Pull Request (PR)（重要）**
+    *   访问你在 GitHub 账号下的 Fork 仓库。
+    *   GitHub 会提示你 "Compare & pull request"，点击该按钮。
+    *   填写 PR 的标题和描述信息，描述你添加了什么插件，以及插件的功能。
+    *   点击 "Create pull request" 按钮，提交你的 PR。
+
+9.  **等待审核**
+    *   仓库维护者会审核你的 PR，如果一切符合规范，你的插件将被合并到主仓库中。
+
+**插件目录结构示例**
+
+```
+Jianer_Plugins_Index/
+├── Plugin_A/
+│   ├── Plugin_A.py
+│   └── README.md (可选)
+└── Plugin_B/
+    ├── Plugin_B/
+    │   ├── setup.py
+    │   ├── README.md (可选)
+    └── └── ...
+```
+
+**关于 Git 命令的补充说明：**
+
+*   **`git clone`**:  将远程仓库复制到本地。
+*   **`git add`**:  将文件添加到暂存区，准备提交。
+    *   `git add .`  暂存所有更改。
+    *   `git add <file_name>` 暂存指定文件。
+*   **`git commit`**:  提交暂存区的更改，并添加描述信息。
+*   **`git push`**:  将本地更改推送到远程仓库。
+*   **`origin`**:  远程仓库的别名，通常指向你 Fork 的仓库。
+*   **`main` (或 `master`)**:  分支名称，指定要推送到的分支。
 
 至此，你已成功完成了插件上传。
 
