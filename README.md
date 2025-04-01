@@ -42,7 +42,12 @@
 4.  **复制你的插件文件到插件目录**
     *   将你的插件文件 (例如 `YourIntelliPlugin.py`，或者包含 `setup.py` 的插件文件夹) 复制到你创建的插件目录中。
 
-5.  **提交 (Commit) 你的更改**
+5.  **创建依赖和介绍信息**
+    *   在你的插件目录下，创建 `requirements.txt` ，记录你的插件所需要用到的**第三方库**。在从设置向导的插件中心安装插件时，设置向导会读取 `requirements.txt` 并进行依赖安装。
+
+    *   在你的插件目录下，创建 `README.md` ，用于介绍你的插件（可选）。介绍内容会显示在设置向导的插件中心，插件详情页窗口中。
+
+6.  **提交 (Commit) 你的更改**
     *   在终端中，使用以下 Git 命令来暂存、提交你的更改：
 
         ```bash
@@ -72,12 +77,14 @@
 Jianer_Plugins_Index/
 ├── Plugin_A/
 │   ├── Plugin_A.py
+│   ├── requirements.txt
 │   └── README.md (可选)
 └── Plugin_B/
     ├── Plugin_B/
     │   ├── setup.py
+    │   ├── requirements.txt
     │   ├── README.md (可选)
-    └── └── ...
+    └──└── ...
 ```
 
 **关于 Git 命令的补充说明：**
