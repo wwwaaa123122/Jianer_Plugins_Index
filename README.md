@@ -82,9 +82,9 @@ Jianer_Plugins_Index/
 └── Plugin_B/
     ├── Plugin_B/
     │   ├── setup.py
-    │   ├── requirements.txt
-    │   ├── README.md (可选)
-    └──└── ...
+    │   └── ...
+    ├── requirements.txt
+    └── README.md (可选)
 ```
 
 **关于 Git 命令的补充说明：**
