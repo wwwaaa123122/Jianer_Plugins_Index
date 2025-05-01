@@ -4,6 +4,15 @@
 ### 实现效果
 将群友发送的消息转换为 **头像+文字** 的图片，通过 HTML 渲染达到更炫酷的效果
 
+### 环境准备
+在命令行中执行以下命令：
+
+```bash
+   pip install playwright
+   playwright install
+   playwright install-deps  # 仅Linux需要
+```
+
 ### 使用方法
 在机器人群聊中发送 ```触发关键词+"名人名言"``` 并同时引用一条消息即可
 
