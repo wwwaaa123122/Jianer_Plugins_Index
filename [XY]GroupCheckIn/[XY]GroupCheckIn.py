@@ -5,7 +5,6 @@ import random
 from datetime import datetime
 import httpx
 
-# 加载配置
 Configurator.cm = Configurator.ConfigManager(Configurator.Config(file="config.json").load_from_file())
 
 TRIGGHT_KEYWORD = "Any"
@@ -43,7 +42,6 @@ class CheckInManager:
             raise e
     
     def _load_or_create_config(self):
-        """加载或创建配置文件"""
         config_path = os.path.join("./data/check_in/", "check_in_config.json")
         try:
             if not os.path.exists(config_path):
@@ -62,11 +60,9 @@ class CheckInManager:
             return DEFAULT_CONFIG
 
     def _get_user_data_path(self, user_id: str) -> str:
-        """获取用户数据文件路径"""
         return os.path.join(self.config["数据存储路径"], "users", f"{user_id}.json")
 
     def _load_user_data(self, user_id: str) -> dict:
-        """加载用户数据"""
         path = self._get_user_data_path(user_id)
         if not os.path.exists(path):
             return {
@@ -79,14 +75,12 @@ class CheckInManager:
             return json.load(f)
 
     def _save_user_data(self, user_id: str, data: dict):
-        """保存用户数据"""
         path = self._get_user_data_path(user_id)
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
 
     def _load_or_create_total_data(self):
-        """加载或创建总计签到数据"""
         os.makedirs(self.config["数据存储路径"], exist_ok=True)
         path = os.path.join(self.config["数据存储路径"], self.config["总计数据文件"])
         if not os.path.exists(path):
@@ -96,7 +90,6 @@ class CheckInManager:
             return json.load(f)
 
     def _load_or_create_daily_data(self):
-        """加载或创建每日签到数据，每天自动刷新"""
         today = datetime.now().strftime("%Y-%m-%d")
         
         if self.last_date != today or self.daily_data is None:
@@ -108,13 +101,11 @@ class CheckInManager:
         return self.daily_data
 
     def _save_total_data(self):
-        """保存总计签到数据"""
         path = os.path.join(self.config["数据存储路径"], self.config["总计数据文件"])
         with open(path, "w", encoding="utf-8") as f:
             json.dump(self.total_data, f, ensure_ascii=False, indent=2)
 
     def _save_daily_data(self):
-        """保存每日签到数据"""
         try:
             today = datetime.now().strftime("%Y-%m-%d")
             path = os.path.join(self.config["数据存储路径"], 
@@ -125,7 +116,6 @@ class CheckInManager:
             print(f"[签到系统]保存每日数据出错: {e}")
 
     def _create_default_template(self, template_path):
-        """创建默认模板文件"""
         try:
             if not os.path.exists(os.path.dirname(template_path)):
                 os.makedirs(os.path.dirname(template_path), exist_ok=True)
@@ -243,7 +233,6 @@ class CheckInManager:
             raise e
 
     def toggle_mode(self):
-        """切换签到模式"""
         self.config["签到模式"] = "image" if self.config["签到模式"] == "text" else "text"
         config_path = os.path.join(self.config["数据存储路径"], "check_in_config.json")
         with open(config_path, "w", encoding="utf-8") as f:
@@ -251,7 +240,6 @@ class CheckInManager:
         return self.config["签到模式"]
 
     async def generate_image(self, user_id, nickname, rewards, hitokoto_text):
-        """生成签到图片"""
         try:
             from playwright.async_api import async_playwright
             import jinja2
@@ -315,7 +303,6 @@ class CheckInManager:
             raise Exception(f"生成签到图片失败: {str(e)}")
 
     def clean_old_images(self):
-        """清理所有过期的图片文件"""
         try:
             image_dir = self.config["数据存储路径"]
             current_time = datetime.now().timestamp()
@@ -334,28 +321,22 @@ class CheckInManager:
             print(f"[签到系统]清理过期图片时出错: {e}")
 
     def check_in(self, user_id: str) -> dict:
-        """处理用户签到"""
         user_id = str(user_id)
         today = datetime.now().strftime("%Y-%m-%d")
         
-        # 加载用户数据
         user_data = self._load_user_data(user_id)
         
-        # 检查是否已经签到
         if user_data.get("last_check") == today:
             return {"success": False, "message": "今天已经签到过了哦~"}
             
-        # 生成奖励
         favor = random.randint(self.config["好感度"]["min"], self.config["好感度"]["max"])
         points = random.randint(self.config["积分"]["min"], self.config["积分"]["max"])
         
-        # 更新数据
         user_data["total_days"] += 1
         user_data["好感度"] += favor
         user_data["积分"] += points
         user_data["last_check"] = today
         
-        # 保存数据
         self._save_user_data(user_id, user_data)
         
         return {
@@ -371,11 +352,9 @@ class CheckInManager:
         }
 
     def _get_daily_rank(self) -> int:
-        """获取今日签到排名"""
         today = datetime.now().strftime("%Y-%m-%d")
         rank = 1
         
-        # 遍历用户目录获取今日签到数
         users_dir = os.path.join(self.config["数据存储路径"], "users")
         for filename in os.listdir(users_dir):
             if filename.endswith('.json'):
@@ -389,7 +368,6 @@ class CheckInManager:
 check_in_manager = CheckInManager()
 
 async def check_permission(event):
-    """检查用户权限"""
     user_id = str(event.user_id)
     return (user_id in Configurator.cm.get_cfg().others["ROOT_User"] or 
             user_id in open("./Super_User.ini", "r").read().splitlines() or 
@@ -439,7 +417,6 @@ async def on_message(event, actions, Manager, Segments):
             )
             return True
 
-        # 获取一言
         try:
             async with httpx.AsyncClient() as client:
                 hitokoto_response = await client.get("https://international.v1.hitokoto.cn/", timeout=5.0)
@@ -479,10 +456,8 @@ async def on_message(event, actions, Manager, Segments):
                     
             except Exception as e:
                 print(f"[签到系统]发送图片失败: {str(e)}")
-                # 如果图片模式失败，切换到文本模式并继续
                 check_in_manager.config["签到模式"] = "text"
         
-        # 如果是文本模式或图片模式失败，使用文本模式发送
         if check_in_manager.config["签到模式"] == "text":
             message = f'''
 签到成功，你是第{rewards["rank"]}名签到的小伙伴
