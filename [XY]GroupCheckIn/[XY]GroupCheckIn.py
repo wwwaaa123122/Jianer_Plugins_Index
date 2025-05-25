@@ -4,6 +4,7 @@ import os
 import random
 from datetime import datetime
 import httpx
+import asyncio
 
 Configurator.cm = Configurator.ConfigManager(Configurator.Config(file="config.json").load_from_file())
 
@@ -26,21 +27,59 @@ DEFAULT_CONFIG = {
 
 class CheckInManager:
     def __init__(self):
-        """初始化签到管理器"""
         try:
             os.makedirs("./data/check_in/users/", exist_ok=True)
             self.config = self._load_or_create_config()
-            
+            self.command_file = os.path.join(self.config["数据存储路径"], "custom_commands.json")
+            self.custom_commands = self._load_custom_commands()
             template_path = os.path.join(self.config["数据存储路径"], self.config["模板文件"])
             if not os.path.exists(template_path):
                 self._create_default_template(template_path)
-            
+            self.browser_lock = asyncio.Lock()
+            self.browser = None
+            self.page = None
+            self.playwright = None
         except Exception as e:
             print(f"[签到系统]初始化失败: {e}")
             print(f"[签到系统]当前工作目录: {os.getcwd()}")
             print(f"[签到系统]配置路径: {os.path.abspath('./data/check_in/')}")
             raise e
-    
+
+    def _load_custom_commands(self):
+        if os.path.exists(self.command_file):
+            try:
+                with open(self.command_file, "r", encoding="utf-8") as f:
+                    return json.load(f)
+            except Exception as e:
+                print(f"[签到系统]加载自定义签到指令失败: {e}")
+        return ["签到"]
+
+    def _save_custom_commands(self):
+        try:
+            with open(self.command_file, "w", encoding="utf-8") as f:
+                json.dump(self.custom_commands, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            print(f"[签到系统]保存自定义签到指令失败: {e}")
+
+    def add_command(self, cmd: str) -> bool:
+        cmd = cmd.strip()
+        if cmd and cmd not in self.custom_commands:
+            self.custom_commands.append(cmd)
+            self._save_custom_commands()
+            return True
+        return False
+
+    def remove_command(self, cmd: str) -> bool:
+        cmd = cmd.strip()
+        if cmd in self.custom_commands and cmd != "签到":
+            self.custom_commands.remove(cmd)
+            self._save_custom_commands()
+            return True
+        return False
+
+    def get_commands(self):
+        return self.custom_commands
+
     def _load_or_create_config(self):
         config_path = os.path.join("./data/check_in/", "check_in_config.json")
         try:
@@ -239,68 +278,74 @@ class CheckInManager:
             json.dump(self.config, f, ensure_ascii=False, indent=2)
         return self.config["签到模式"]
 
-    async def generate_image(self, user_id, nickname, rewards, hitokoto_text):
+    async def ensure_browser(self):
         try:
             from playwright.async_api import async_playwright
+            if self.playwright is None or self.browser is None:
+                if self.playwright:
+                    await self.playwright.stop()
+                self.playwright = await async_playwright().start()
+                self.browser = await self.playwright.chromium.launch()
+                self.page = await self.browser.new_page(viewport={"width": 800, "height": 600})
+            elif self.page is None:
+                self.page = await self.browser.new_page(viewport={"width": 800, "height": 600})
+        except Exception as e:
+            print(f"[签到系统]浏览器启动失败: {e}")
+            raise
+
+    async def close_browser(self):
+        try:
+            if self.page:
+                await self.page.close()
+            if self.browser:
+                await self.browser.close()
+            if self.playwright:
+                await self.playwright.stop()
+        except Exception as e:
+            print(f"[签到系统]关闭浏览器失败: {e}")
+
+    async def generate_image(self, user_id, nickname, rewards, hitokoto_text):
+        try:
             import jinja2
-
-            os.makedirs(self.config["数据存储路径"], exist_ok=True)
-
-            img_path = os.path.abspath(os.path.join(self.config["数据存储路径"], f"sign_{user_id}.png"))
-            try:
-                if os.path.exists(img_path):
-                    os.remove(img_path)
-                    print(f"[签到系统]已清理旧图片: {img_path}")
-            except Exception as e:
-                print(f"[签到系统]清理旧图片失败: {e}")
-            template_path = os.path.abspath(os.path.join(self.config["数据存储路径"], self.config["模板文件"]))
-            if not os.path.exists(template_path):
-                self._create_default_template(template_path)
-            
-            with open(template_path, "r", encoding="utf-8") as f:
-                template_content = f.read()
-
-            template = jinja2.Template(template_content)
-            html_content = template.render(
-                user_id=user_id,
-                nickname=nickname,
-                rank=rewards["rank"],
-                favor=rewards["favor"],
-                points=rewards["points"],
-                total_favor=rewards["total_favor"],
-                total_points=rewards["total_points"],
-                total_days=rewards["total_days"],
-                hitokoto=hitokoto_text,
-                avatar_url=f"http://q2.qlogo.cn/headimg_dl?dst_uin={user_id}&spec=640"
-            )
-
-            img_path = os.path.abspath(os.path.join(self.config["数据存储路径"], f"sign_{user_id}.png"))
-            
-            img_dir = os.path.dirname(img_path)
-            os.makedirs(img_dir, exist_ok=True)
+            from playwright.async_api import async_playwright
 
             async with async_playwright() as p:
                 browser = await p.chromium.launch()
                 page = await browser.new_page(viewport={"width": 800, "height": 600})
+
+                os.makedirs(self.config["数据存储路径"], exist_ok=True)
+                img_path = os.path.abspath(os.path.join(self.config["数据存储路径"], f"sign_{user_id}.png"))
+                if os.path.exists(img_path):
+                    os.remove(img_path)
+                template_path = os.path.abspath(os.path.join(self.config["数据存储路径"], self.config["模板文件"]))
+                if not os.path.exists(template_path):
+                    self._create_default_template(template_path)
+                with open(template_path, "r", encoding="utf-8") as f:
+                    template_content = f.read()
+                template = jinja2.Template(template_content)
+                html_content = template.render(
+                    user_id=user_id,
+                    nickname=nickname,
+                    rank=rewards["rank"],
+                    favor=rewards["favor"],
+                    points=rewards["points"],
+                    total_favor=rewards["total_favor"],
+                    total_points=rewards["total_points"],
+                    total_days=rewards["total_days"],
+                    hitokoto=hitokoto_text,
+                    avatar_url=f"http://q2.qlogo.cn/headimg_dl?dst_uin={user_id}&spec=640"
+                )
                 await page.set_content(html_content)
                 await page.screenshot(path=img_path, full_page=True)
+                await page.close()
                 await browser.close()
-
-            print(f"[签到系统]图片已生成: {img_path}")
-            
-            if not os.path.exists(img_path):
-                raise FileNotFoundError(f"图片文件未生成: {img_path}")
-                
-            file_size = os.path.getsize(img_path)
-            if file_size == 0:
-                raise ValueError("生成的图片文件大小为0")
-                
-            print(f"[签到系统]图片大小: {file_size} 字节")
-            return img_path
-
+                return img_path
         except Exception as e:
             print(f"[签到系统]生成图片失败: {e}")
             raise Exception(f"生成签到图片失败: {str(e)}")
+        finally:
+            if self.browser_lock.locked():
+                self.browser_lock.release()
 
     def clean_old_images(self):
         try:
@@ -323,26 +368,27 @@ class CheckInManager:
     def check_in(self, user_id: str) -> dict:
         user_id = str(user_id)
         today = datetime.now().strftime("%Y-%m-%d")
-        
         user_data = self._load_user_data(user_id)
-        
+
         if user_data.get("last_check") == today:
             return {"success": False, "message": "今天已经签到过了哦~"}
-            
+
+        rank = self._get_daily_rank()
+
         favor = random.randint(self.config["好感度"]["min"], self.config["好感度"]["max"])
         points = random.randint(self.config["积分"]["min"], self.config["积分"]["max"])
-        
+
         user_data["total_days"] += 1
         user_data["好感度"] += favor
         user_data["积分"] += points
         user_data["last_check"] = today
-        
+
         self._save_user_data(user_id, user_data)
-        
+
         return {
             "success": True,
             "rewards": {
-                "rank": self._get_daily_rank(),  # 实现下面的方法
+                "rank": rank,
                 "favor": favor,
                 "points": points,
                 "total_days": user_data["total_days"],
@@ -353,17 +399,15 @@ class CheckInManager:
 
     def _get_daily_rank(self) -> int:
         today = datetime.now().strftime("%Y-%m-%d")
-        rank = 1
-        
+        count = 0
         users_dir = os.path.join(self.config["数据存储路径"], "users")
         for filename in os.listdir(users_dir):
             if filename.endswith('.json'):
                 with open(os.path.join(users_dir, filename), 'r', encoding='utf-8') as f:
                     data = json.load(f)
                     if data.get("last_check") == today:
-                        rank += 1
-        
-        return rank
+                        count += 1
+        return count
 
 check_in_manager = CheckInManager()
 
@@ -376,34 +420,89 @@ async def check_permission(event):
 async def on_message(event, actions, Manager, Segments):
     if not hasattr(event, 'message'):
         return False
-        
+
     if random.random() < 0.01:
         check_in_manager.clean_old_images()
-    
+
     message_content = str(event.message).strip()
     reminder = Configurator.cm.get_cfg().others['reminder']
-    
-    if message_content in [f"{reminder}切换签到发送模式"]:
+
+    if message_content.startswith(f"{reminder}添加签到指令 "):
         if not await check_permission(event):
             await actions.send(
                 group_id=event.group_id,
                 message=Manager.Message(Segments.Text("你没有权限执行此操作"))
             )
             return True
-            
+        new_cmd = message_content.replace(f"{reminder}添加签到指令", "", 1).strip()
+        if not new_cmd:
+            await actions.send(
+                group_id=event.group_id,
+                message=Manager.Message(Segments.Text("请输入要添加的签到指令"))
+            )
+            return True
+        if check_in_manager.add_command(new_cmd):
+            await actions.send(
+                group_id=event.group_id,
+                message=Manager.Message(Segments.Text(f"已添加签到指令：{new_cmd}"))
+            )
+        else:
+            await actions.send(
+                group_id=event.group_id,
+                message=Manager.Message(Segments.Text(f"签到指令已存在或无效"))
+            )
+        return True
+
+    if message_content.startswith(f"{reminder}删除签到指令 "):
+        if not await check_permission(event):
+            await actions.send(
+                group_id=event.group_id,
+                message=Manager.Message(Segments.Text("你没有权限执行此操作"))
+            )
+            return True
+        del_cmd = message_content.replace(f"{reminder}删除签到指令", "", 1).strip()
+        if not del_cmd or del_cmd == "签到":
+            await actions.send(
+                group_id=event.group_id,
+                message=Manager.Message(Segments.Text("不能删除默认签到指令"))
+            )
+            return True
+        if check_in_manager.remove_command(del_cmd):
+            await actions.send(
+                group_id=event.group_id,
+                message=Manager.Message(Segments.Text(f"已删除签到指令：{del_cmd}"))
+            )
+        else:
+            await actions.send(
+                group_id=event.group_id,
+                message=Manager.Message(Segments.Text(f"签到指令不存在或无效"))
+            )
+        return True
+
+    if message_content == f"{reminder}切换签到发送模式":
+        if not await check_permission(event):
+            await actions.send(
+                group_id=event.group_id,
+                message=Manager.Message(Segments.Text("你没有权限执行此操作"))
+            )
+            return True
         new_mode = check_in_manager.toggle_mode()
         await actions.send(
             group_id=event.group_id,
-            message=Manager.Message(Segments.Text(f"已切换为{new_mode}模式签到"))
+            message=Manager.Message(Segments.Text(f"已切换签到发送模式为：{new_mode}"))
         )
         return True
-    
-    if message_content != "签到":
+
+    if message_content not in check_in_manager.get_commands():
         return False
-    
+
     try:
-        user_info = await actions.get_stranger_info(event.user_id)
-        user_nickname = user_info.data.raw["nickname"]
+        try:
+            group_member_info = await actions.get_group_member_info(event.group_id, event.user_id)
+            user_nickname = group_member_info.data.raw.get("card") or group_member_info.data.raw.get("nickname")
+        except Exception:
+            stranger_info = await actions.get_stranger_info(event.user_id)
+            user_nickname = stranger_info.data.raw.get("nickname", str(event.user_id))
         
         result = check_in_manager.check_in(str(event.user_id))
         
@@ -487,3 +586,5 @@ async def on_message(event, actions, Manager, Segments):
         return True
 
 print("[Xiaoyi_QQ]签到插件已加载")
+print("Version: 1.2.3")
+print("Author: Xiaoyi")
