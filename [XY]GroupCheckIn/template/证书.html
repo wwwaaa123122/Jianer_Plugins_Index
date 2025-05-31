@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>签到荣誉证书</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700&display=swap');
+        body {
+            background: #f9f6f2;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Noto Serif SC', 'Microsoft YaHei', serif;
+        }
+        .certificate {
+            position: relative;
+            width: 600px;
+            padding: 40px 40px 60px 40px;
+            background: #fffbe8;
+            border: 8px solid #e6c36b;
+            border-radius: 24px;
+            box-shadow: 0 8px 32px 0 rgba(180, 140, 40, 0.15);
+            text-align: center;
+        }
+        .certificate-title {
+            font-size: 32px;
+            color: #bfa046;
+            font-weight: bold;
+            margin-bottom: 18px;
+            letter-spacing: 4px;
+        }
+        .avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            border: 3px solid #e6c36b;
+            margin-bottom: 12px;
+            object-fit: cover;
+        }
+        .nickname {
+            font-size: 24px;
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+        .desc {
+            font-size: 18px;
+            color: #7c6f57;
+            margin-bottom: 18px;
+        }
+        .rewards {
+            margin: 18px 0 10px 0;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+        }
+        .reward-item {
+            background: #fff8e1;
+            border: 1.5px solid #e6c36b;
+            border-radius: 12px;
+            padding: 12px 18px;
+            min-width: 110px;
+        }
+        .reward-label {
+            font-size: 15px;
+            color: #bfa046;
+            margin-bottom: 4px;
+        }
+        .reward-value {
+            font-size: 22px;
+            color: #bfa046;
+            font-weight: bold;
+        }
+        .hitokoto {
+            margin: 18px 0 10px 0;
+            font-style: italic;
+            color: #a68b5b;
+            font-size: 16px;
+        }
+        .footer {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+        .seal {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            opacity: 0.85;
+        }
+        .sign {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 20px;
+            color: #bfa046;
+            margin-right: 30px;
+            text-align: right;
+        }
+        .date {
+            font-size: 15px;
+            color: #bfa046;
+            margin-top: 10px;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <div class="certificate">
+        <div class="certificate-title">签到荣誉证书</div>
+        <img class="avatar" src="{{ avatar_url }}" alt="Avatar">
+        <div class="nickname">{{ nickname }}</div>
+        <div class="desc">在 {{ date }}，第 <b>{{ rank }}</b> 名完成了今日签到</div>
+        <div class="rewards">
+            <div class="reward-item">
+                <div class="reward-label">今日好感度</div>
+                <div class="reward-value">+{{ favor }}</div>
+            </div>
+            <div class="reward-item">
+                <div class="reward-label">今日积分</div>
+                <div class="reward-value">{{ points }}</div>
+            </div>
+            <div class="reward-item">
+                <div class="reward-label">累计签到</div>
+                <div class="reward-value">{{ total_days }} 天</div>
+            </div>
+        </div>
+        <div class="rewards" style="margin-top:0;">
+            <div class="reward-item">
+                <div class="reward-label">累计好感度</div>
+                <div class="reward-value">{{ total_favor }}</div>
+            </div>
+            <div class="reward-item">
+                <div class="reward-label">累计积分</div>
+                <div class="reward-value">{{ total_points }}</div>
+            </div>
+        </div>
+        <div class="hitokoto">「{{ hitokoto }}」</div>
+        <div class="footer">
+            <div>
+                <img class="seal" src="https://img.alicdn.com/imgextra/i4/6000000000427/O1CN01Q7k9vB1y7nQ2wE8wA_!!6000000000427-2-tps-200-200.png" alt="印章">
+            </div>
+            <div>
+                <div class="sign">小依机器人<br>签到系统</div>
+                <div class="date">{{ date }}</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

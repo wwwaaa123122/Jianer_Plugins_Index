@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>签到成功</title>
+    <style>
+        body {
+            background: linear-gradient(120deg, #89f7fe 0%, #66a6ff 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        .card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 18px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.25);
+            padding: 36px 32px 28px 32px;
+            width: 420px;
+            text-align: center;
+        }
+        .avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            margin-bottom: 18px;
+            border: 3px solid #66a6ff;
+        }
+        .nickname {
+            font-size: 26px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 6px;
+        }
+        .rank {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 18px;
+        }
+        .rewards {
+            margin: 18px 0;
+            background: #f4f8fb;
+            border-radius: 10px;
+            padding: 16px 0;
+        }
+        .reward-item {
+            font-size: 17px;
+            margin: 7px 0;
+            color: #444;
+        }
+        .hitokoto {
+            margin-top: 18px;
+            font-style: italic;
+            color: #888;
+            font-size: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <img class="avatar" src="{{ avatar_url }}" alt="Avatar">
+        <div class="nickname">{{ nickname }}</div>
+        <div class="rank">第 {{ rank }} 名签到</div>
+        <div class="rewards">
+            <div class="reward-item">今日好感度：<b>+{{ favor }}</b></div>
+            <div class="reward-item">今日积分：<b>{{ points }}</b></div>
+            <div class="reward-item">累计好感度：{{ total_favor }}</div>
+            <div class="reward-item">累计积分：{{ total_points }}</div>
+            <div class="reward-item">累计签到：{{ total_days }} 天</div>
+        </div>
+        <div class="hitokoto">「{{ hitokoto }}」</div>
+    </div>
+</body>
+</html>
