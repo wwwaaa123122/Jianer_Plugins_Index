@@ -563,7 +563,7 @@ async def on_message(event, actions, Manager, Segments):
 好感度：+{rewards["favor"]}
 奖励积分：{rewards["points"]}
 累计好感：{rewards["total_favor"]}
-累计总计：{rewards["total_points"]}
+累计积分：{rewards["total_points"]}
 累计签到：{rewards["total_days"]}天
 ——————————
 {hitokoto_text}'''
