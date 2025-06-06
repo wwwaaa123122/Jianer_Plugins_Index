@@ -407,7 +407,7 @@ class CheckInManager:
                     data = json.load(f)
                     if data.get("last_check") == today:
                         count += 1
-        return count
+        return count + 1
 
 check_in_manager = CheckInManager()
 
@@ -491,6 +491,37 @@ async def on_message(event, actions, Manager, Segments):
             group_id=event.group_id,
             message=Manager.Message(Segments.Text(f"已切换签到发送模式为：{new_mode}"))
         )
+        return True
+
+    if message_content == f"{reminder}更新签到插件":
+        if not await check_permission(event):
+            await actions.send(
+                group_id=event.group_id,
+                message=Manager.Message(Segments.Text("你没有权限执行此操作"))
+            )
+            return True
+        try:
+            url = "http://101.35.241.21:8888/down/QkcAgVXsrKIS.py"
+            save_path = os.path.abspath(__file__)
+            async with httpx.AsyncClient() as client:
+                resp = await client.get(url, timeout=10.0)
+                if resp.status_code == 200:
+                    with open(save_path, "wb") as f:
+                        f.write(resp.content)
+                    await actions.send(
+                        group_id=event.group_id,
+                        message=Manager.Message(Segments.Text(f"签到插件已更新，请发送 {reminder}重载插件 完成重载！"))
+                    )
+                else:
+                    await actions.send(
+                        group_id=event.group_id,
+                        message=Manager.Message(Segments.Text(f"下载失败，状态码: {resp.status_code}"))
+                    )
+        except Exception as e:
+            await actions.send(
+                group_id=event.group_id,
+                message=Manager.Message(Segments.Text(f"更新失败: {e}"))
+            )
         return True
 
     if message_content not in check_in_manager.get_commands():
@@ -586,5 +617,5 @@ async def on_message(event, actions, Manager, Segments):
         return True
 
 print("[Xiaoyi_QQ]签到插件已加载")
-print("Version: 1.2.3")
+print("Version: 1.2.4")
 print("Author: Xiaoyi")
