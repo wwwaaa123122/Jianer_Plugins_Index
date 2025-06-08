@@ -21,7 +21,7 @@ DEFAULT_CONFIG = {
         "max": 100
     },
     "数据存储路径": "./data/check_in/",
-    "签到模式": "text",
+    "签到模式": "text",  # 支持 text, image, api
     "模板文件": "template.html"
 }
 
@@ -272,7 +272,11 @@ class CheckInManager:
             raise e
 
     def toggle_mode(self):
-        self.config["签到模式"] = "image" if self.config["签到模式"] == "text" else "text"
+        mode_list = ["text", "image", "api"]
+        current = self.config["签到模式"]
+        idx = mode_list.index(current) if current in mode_list else 0
+        new_mode = mode_list[(idx + 1) % len(mode_list)]
+        self.config["签到模式"] = new_mode
         config_path = os.path.join(self.config["数据存储路径"], "check_in_config.json")
         with open(config_path, "w", encoding="utf-8") as f:
             json.dump(self.config, f, ensure_ascii=False, indent=2)
@@ -607,6 +611,58 @@ async def on_message(event, actions, Manager, Segments):
                 ])
             )
             
+        if check_in_manager.config["签到模式"] == "api":
+            try:
+                message = (
+                    f"签到成功，你是第{rewards['rank']}名签到的小伙伴\n"
+                    f"好感度：+{rewards['favor']}\n"
+                    f"奖励积分：{rewards['points']}\n"
+                    f"累计好感：{rewards['total_favor']}\n"
+                    f"累计积分：{rewards['total_points']}\n"
+                    f"累计签到：{rewards['total_days']}天\n"
+                    f"——————————\n"
+                    f"{hitokoto_text}"
+                )
+                params = {
+                    "image": f"https://api.yuafeng.cn/API/qqtx/api.php?qq={event.user_id}",
+                    "text": message,
+                    "fontsize": 29,
+                    "hh": "↔"
+                }
+                api_url = "https://api.yuafeng.cn/API/ly/ttf/gjtwhc.php"
+                async with httpx.AsyncClient(follow_redirects=True) as client:
+                    resp = await client.get(api_url, params=params, timeout=10.0)
+                    debug_info = (
+                        f"[签到系统][API模式] 请求URL: {resp.url}\n"
+                        f"状态码: {resp.status_code}\n"
+                        f"响应头: {dict(resp.headers)}\n"
+                        f"Content-Type: {resp.headers.get('Content-Type')}\n"
+                    )
+                    print(debug_info)
+                    img_url = None
+                    if resp.status_code == 200 and "image" in resp.headers.get("Content-Type", ""):
+                        img_url = str(resp.url)
+                    else:
+                        print(f"[签到系统][API模式] 未获取到图片直链，响应内容前100字：{resp.text[:100]}")
+                if img_url:
+                    await actions.send(
+                        group_id=event.group_id,
+                        message=Manager.Message([
+                            Segments.At(event.user_id),
+                            Segments.Image(img_url)
+                        ])
+                    )
+                else:
+                    raise Exception("API生成图片失败，详细见控制台日志")
+            except Exception as e:
+                import traceback
+                print(f"[签到系统]API模式发送图片失败: {str(e)}")
+                print(traceback.format_exc())
+                check_in_manager.config["签到模式"] = "text"
+                await actions.send(
+                    group_id=event.group_id,
+                    message=Manager.Message(Segments.Text(f"API模式发送图片失败: {e}，请查看控制台详细日志"))
+                )
         return True
         
     except Exception as e:
