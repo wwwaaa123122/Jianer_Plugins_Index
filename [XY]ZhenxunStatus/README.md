@@ -42,11 +42,17 @@
 ## 适配版本
 
 - Xiaoyi_QQ: [https://github.com/ValkyrieEY/Xiaoyi_QQ/](https://github.com/ValkyrieEY/Xiaoyi_QQ/)
+- Jianer_QQ V3 NEXT: [https://github.com/SRInternet-Studio/Jianer_QQ_bot/](https://github.com/SRInternet-Studio/Jianer_QQ_bot/)
 
 ## 作者信息
 
 - 作者：小依
 - 博客：[https://xun.eynet.top/](https://xun.eynet.top/)
+
+## 更新日志
+
+### v1.0.0
+- 提供基础功能
 
 ## 开源协议
 
@@ -59,4 +65,6 @@ MIT License
 
 ## 贡献代码
 
-欢迎提交 Pull Request 来完善这个插件！
+## 鸣谢
+- NoneBot - 提供基础模板，本插件适配自NoneBot
+- SR Studio - 提供框架支持
