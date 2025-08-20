@@ -10,7 +10,7 @@ from Hyper import Manager, Segments
 Configurator.cm = Configurator.ConfigManager(Configurator.Config(file="config.json").load_from_file())
 
 TRIGGHT_KEYWORD = "Any"  
-HELP_MESSAGE = f"发送【超我】【赞我】可以给你的QQ名片点赞10次"
+HELP_MESSAGE = f"{Configurator.cm.get_cfg().others["reminder"]}超我/赞我 —> 给你的QQ名片点赞10次"
 
 class LikeManager:
     def __init__(self):
@@ -208,5 +208,5 @@ async def on_message(event, actions, Manager, Segments):
     return False
 
 print("[QQ名片点赞] 加载成功")
-print("触发词: 赞我, 超我, 超湿我")
-print("功能: 每次给用户QQ名片点赞10次")
+# print("触发词: 赞我, 超我, 超湿我")
+# print("功能: 每次给用户QQ名片点赞10次")
