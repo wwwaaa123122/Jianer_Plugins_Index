@@ -4,7 +4,7 @@ import whois
 from Hyper import Manager, Segments
 from datetime import datetime
 
-# 加载配置
+# 加载配置 
 Configurator.cm = Configurator.ConfigManager(
     Configurator.Config(file="config.json").load_from_file()
 )
