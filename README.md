@@ -65,7 +65,7 @@
 8.  **创建 Pull Request (PR)（重要）**
     *   访问你在 GitHub 账号下的 Fork 仓库。
     *   GitHub 会提示你 "Compare & pull request"，点击该按钮。
-    *   填写 PR 的标题和描述信息，描述你添加了什么插件，以及插件的功能。
+    *   填写 PR 的标题和描述信息，描述你添加了什么插件，以及插件的功能和您的插件测试截图。
     *   点击 "Create pull request" 按钮，提交你的 PR。
 
 9.  **等待审核**
