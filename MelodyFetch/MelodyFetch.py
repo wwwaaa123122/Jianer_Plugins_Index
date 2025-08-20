@@ -140,8 +140,8 @@ async def get_song_by_id(song_id, event, actions, Manager, Segments):
                             message=Manager.Message(Segments.Text(f"找到啦！这是宝宝要听的歌哦～(ノ◕ヮ◕)ノ*:･ﾟ✧\n\n{song_info}"))
                         )
                         
-                        # 检查文件大小，超过50MB不发送音乐文件
-                        if size_mb > 50:
+                        # 检查文件大小，超过100MB不发送音乐文件
+                        if size_mb > 100:
                             await actions.send(
                                 group_id=event.group_id,
                                 message=Manager.Message(Segments.Text("⚠️ 啊这个音乐太~太大了呢(´•̥ ̯ •̥`) 超过简儿能承受的极限啦，简儿发不了音频文件呢…但是宝宝可以点开链接听哦！"))
