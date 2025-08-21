@@ -9,7 +9,7 @@ import asyncio
 import os
 
 TRIGGHT_KEYWORD = "摩斯电码"
-HELP_MESSAGE = "/摩斯电码 加密/解密 [内容] —> 摩斯电码加解密功能，支持中英文自动翻译\n     /摩斯电码 设置翻译/摩斯电码 设置翻译 [appid] [appkey] —> 配置百度翻译API (仅Root用户)\n      /摩斯电码 查看配置 —> 查看当前翻译配置 (仅Root用户)"
+HELP_MESSAGE = "/摩斯电码 加密/解密 [内容] —> 摩斯电码加解密功能，支持中英文自动翻译\n      /摩斯电码 设置翻译 [appid] [appkey] —> 配置百度翻译API (仅Root用户)\n      /摩斯电码 查看配置 —> 查看当前翻译配置 (仅Root用户)"
 
 # 配置文件路径
 TRANSLATE_CONFIG_FILE = "baidu_translate_config.json"
