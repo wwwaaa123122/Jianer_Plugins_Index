@@ -62,7 +62,7 @@
         git push origin main  # 推送到 origin 仓库的 main 分支 (如果你的仓库使用其他分支，请替换 main)
         ```
 
-8.  **创建 Pull Request (PR)（重要）**
+8.  **创建 Pull Request (PR)(拉取请求)（重要）**
     *   访问你在 GitHub 账号下的 Fork 仓库。
     *   GitHub 会提示你 "Compare & pull request"，点击该按钮。
     *   填写 PR 的标题和描述信息，描述你添加了什么插件，以及插件的功能和您的插件测试截图。
