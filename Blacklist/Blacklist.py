@@ -11,11 +11,18 @@ TRIGGHT_KEYWORD = "Any"
 # 插件帮助信息
 HELP_MESSAGE = f"{Configurator.cm.get_cfg().others['reminder']}查看黑名单 —> 管理用户黑名单(发送/添加（移除）黑名单 QQ号或者/添加黑名单 @用户名)"
 
-# 黑名单文件路径
-BLACKLIST_FILE = "user_blacklist.txt"
+# 黑名单文件夹和文件路径
+BLACKLIST_DIR = "data/blacklist"
+BLACKLIST_FILE = os.path.join(BLACKLIST_DIR, "user_blacklist.txt")
+
+def ensure_blacklist_dir():
+    """确保黑名单目录存在"""
+    if not os.path.exists(BLACKLIST_DIR):
+        os.makedirs(BLACKLIST_DIR, exist_ok=True)
 
 def load_blacklist():
     """加载黑名单列表"""
+    ensure_blacklist_dir()  # 确保目录存在
     blacklist = set()
     if os.path.exists(BLACKLIST_FILE):
         try:
@@ -30,6 +37,7 @@ def load_blacklist():
 
 def save_blacklist(blacklist):
     """保存黑名单列表"""
+    ensure_blacklist_dir()  # 确保目录存在
     try:
         with open(BLACKLIST_FILE, "w", encoding="utf-8") as f:
             for user_id in blacklist:
