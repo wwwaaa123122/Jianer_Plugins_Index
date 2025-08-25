@@ -20,6 +20,7 @@ def _d(ch, k):
 
 _API = _d(_CI, _K)
 TRIGGHT_KEYWORD = "Any"
+HELP_MESSAGE = f"{_C.cm.get_cfg().others['reminder']}抖音解析帮助 —> 查看插件使用说明"
 
 # 白名单文件路径
 _WHITELIST_FILE = "douyin_whitelist.txt"
@@ -64,9 +65,13 @@ async def on_message(event, actions, Manager, Segments):
     cfg = _C.cm.get_cfg().others
     r = cfg.get('reminder', '')
     
-    # 获取主人信息（可配置）
+    # 自动获取主人信息（从配置读取）
+    root_users = cfg.get('ROOT_User', [])
+    if root_users:
+        owner_qq = root_users[0]
+    else:
+        owner_qq = '未设置主人'
     owner_name = cfg.get('douyin_plugin_owner_name', '主人')
-    owner_qq = cfg.get('douyin_plugin_owner_qq', 'hjh1329253961')
     
     # 处理帮助命令
     if m == f"{r}抖音解析帮助":
@@ -112,7 +117,7 @@ async def on_message(event, actions, Manager, Segments):
                 message=Manager.Message(Segments.Text("本群已在抖音解析白名单中"))
             )
         return True
-        
+       
     elif m == f"{r}本群解析删白":
         if not await _perm(event):
             await actions.send(
@@ -135,7 +140,7 @@ async def on_message(event, actions, Manager, Segments):
                 message=Manager.Message(Segments.Text("本群不在抖音解析白名单中"))
             )
         return True
-    
+  
     # 处理插件更新命令
     if m == f"{r}更新抖音解析插件":
         if not await _perm(event):
@@ -276,8 +281,8 @@ async def on_message(event, actions, Manager, Segments):
             Manager.Message([
                 Segments.Text("【统计数据】"),
                 Segments.Text(f"👍点赞：{cnt.get('like', 0)}"),
-                Segments.Text(f"💬评论：{cnt.get('comment', 0)}"),
-                Segments.Text(f"📢分享：{cnt.get('share', 0)}"),
+                Segments.Text(f"💬💬评论：{cnt.get('comment', 0)}"),
+                Segments.Text(f"📢📢分享：{cnt.get('share', 0)}"),
                 Segments.Text(f"⭐收藏：{cnt.get('collect', 0)}")
             ])
         )
@@ -290,7 +295,7 @@ async def on_message(event, actions, Manager, Segments):
             "小卡",
             Manager.Message([
                 Segments.Text("【视频直链】"),
-                Segments.Text(f"🔗{vurl if vurl else '无直链'}")
+                Segments.Text(f"🔗🔗{vurl if vurl else '无直链'}")
             ])
         )
     )
@@ -301,7 +306,7 @@ async def on_message(event, actions, Manager, Segments):
         message=Manager.Message(*chat_nodes)
     )
     
-    # 2. 单独发送视频（如果有）
+    # 2. 单独发送视频
     if vurl:
         try:
             await actions.send(
@@ -316,4 +321,4 @@ async def on_message(event, actions, Manager, Segments):
         
     return True
 
-print("[Xiaoyi_QQ]抖音解析插件已加载（支持白名单提示功能）")
+print("[Xiaoyi_QQ]抖音解析插件已加载")
