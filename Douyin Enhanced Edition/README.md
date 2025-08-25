@@ -20,10 +20,8 @@ ROOT用户、Super用户、管理用户三级权限体系
 
 #### 自定义机器人主人信息
 
-owner\_name = cfg.get('douyin\_plugin\_owner\_name', '主人')
-
-owner\_qq = cfg.get('douyin\_plugin\_owner\_qq', 'hjh1329253961')
-
+owner_name = cfg.get('douyin_plugin_owner_name', '主人')
+  
 支持自定义提示信息中的联系人
 
 灵活配置各类提示文本
@@ -110,5 +108,6 @@ API接口双重加密保护
 
 为新媒体运营教学提供实时案例解析，展示视频数据分析方法
 
-###### 版本提示​：当前为V2.3增强版，支持Xiaoyi\_QQ/Jianer\_QQ双框架，平均解析耗时<1.5秒，已处理安全漏洞3处，优化用户体验12项。
+###### 版本提示​：当前为V2.3增强版，支持Jianer\_QQ框架，平均解析耗时<1.5秒，已处理安全漏洞3处，优化用户体验12项。
+
 
