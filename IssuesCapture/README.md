@@ -10,7 +10,7 @@
 ### 安装指南
 1. 安装依赖：
    ```bash
-   pip install -r requests selenium Pillow playwright
+   pip install requests selenium Pillow playwright
    ```
 2. 配置环境：
 
