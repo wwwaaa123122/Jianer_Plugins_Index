@@ -75,7 +75,7 @@ async def on_message(event, actions, Manager, Segments, Events, ROOT_User, remin
         return False
     
     # 处理黑名单管理命令
-    if command.startswith("添加黑名单"):
+    if command.startswith("添加用户黑名单"):
         # 提取要添加到黑名单的用户ID
         target_user = None
         
@@ -144,7 +144,7 @@ async def on_message(event, actions, Manager, Segments, Events, ROOT_User, remin
                 )
         return True
     
-    elif command.startswith("移除黑名单"):
+    elif command.startswith("移除用户黑名单"):
         # 提取要从黑名单移除的用户ID
         target_user = None
         
@@ -213,7 +213,7 @@ async def on_message(event, actions, Manager, Segments, Events, ROOT_User, remin
                 )
         return True
     
-    elif command.startswith("查看黑名单"):
+    elif command.startswith("查看用户黑名单"):
         if blacklist:
             blacklist_str = "\n".join([f"{i+1}. {uid}" for i, uid in enumerate(blacklist)])
             response_msg = f"当前黑名单用户 ({len(blacklist)} 个):\n{blacklist_str}"
